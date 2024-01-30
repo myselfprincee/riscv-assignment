@@ -1,0 +1,48 @@
+name: Test the code
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+<<<<<<< HEAD
+=======
+    - name: Run tests
+      id: tests
+      run: |
+        npm test -- --json > output.json
+        TOTAL_TESTS=$(jq '.numTotalTests' output.json)
+        PASSED_TESTS=$(jq '.numPassedTests' output.json)
+        FAILED_TESTS=$(jq '.numFailedTests' output.json)
+        echo "TOTAL_TESTS=$TOTAL_TESTS" >> $GITHUB_ENV
+        echo "PASSED_TESTS=$PASSED_TESTS" >> $GITHUB_ENV
+        echo "FAILED_TESTS=$FAILED_TESTS" >> $GITHUB_ENV
+
+    - name: Update README
+      run: |
+        sed -i "s/Total Tests: .*/Total Tests: $TOTAL_TESTS/" README.md
+        sed -i "s/Passed Tests: .*/Passed Tests: $PASSED_TESTS ✅/" README.md
+        sed -i "s/Failed Tests: .*/Failed Tests: $FAILED_TESTS ❌/" README.md
+        
+    - name: Commit and push
+      run: |
+        git config --local user.email "prince.kumar01129@gmail.com"
+        git config --local user.name "Prince Gupta"
+        git commit -am "Update test results in README"
+        git push origin "HEAD:${{ github.ref }}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+>>>>>>> 4f9c257 (Update main.yml)
